@@ -1,9 +1,15 @@
 ---
+# Generated query for ansible.mcp collection
+# Uses (fromjson)? for error-safe JSON parsing of MCP responses
+# Some responses are error messages (not JSON), this silently skips them
+
 ansible.mcp.run_tool:
   query: >-
-    .content[] | .text | fromjson | select(.id != null) | {
+    .content[] | .text | (fromjson)? | select(.id != null) | {
       name: (.id | tostring),
-      canonical_facts: { id: (.id | tostring) },
+      canonical_facts: {
+        id: (.id | tostring)
+      },
       facts: {
         infra_type: "PrivateCloud",
         infra_bucket: "AI_MCP",
@@ -38,4 +44,3 @@ ansible.mcp.tools_info:
         device_type: "Resource"
       }
     }
-
