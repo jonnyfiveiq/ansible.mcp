@@ -2,7 +2,6 @@
 - name: Demo playbook for using GitHub MCP Server to create a repository and a pull request
   hosts: github
   gather_facts: false
-
   tasks:
     - name: Retrieve user personal account
       when: github_organization is undefined
@@ -12,11 +11,20 @@
             name: get_me
           register: get_me_result
 
-        - name: Set personal account as github_organization
+        - name: Set personal account as github_owner
           ansible.builtin.set_fact:
             github_owner: "{{ user_info.login }}"
           vars:
             user_info: "{{ get_me_result.content.0.text | from_json }}"
+
+    - name: Check if repository exists
+      ansible.mcp.run_tool:
+        name: get_repository
+        args:
+          owner: "{{ github_organization | default(github_owner) }}"
+          repo: "{{ github_repository_name }}"
+      register: repo_check
+      ignore_errors: true
 
     - name: Create Github repository
       ansible.mcp.run_tool:
@@ -25,6 +33,17 @@
           organization: "{{ github_organization | default(omit) }}"
           name: "{{ github_repository_name }}"
           autoInit: true
+      when: repo_check is failed or repo_check.is_error | default(false)
+
+    - name: Check if branch exists
+      ansible.mcp.run_tool:
+        name: get_branch
+        args:
+          owner: "{{ github_organization | default(github_owner) }}"
+          repo: "{{ github_repository_name }}"
+          branch: "{{ github_branch_name }}"
+      register: branch_check
+      ignore_errors: true
 
     - name: Create repository branch
       ansible.mcp.run_tool:
@@ -33,6 +52,7 @@
           branch: "{{ github_branch_name }}"
           owner: "{{ github_organization | default(github_owner) }}"
           repo: "{{ github_repository_name }}"
+      when: branch_check is failed or branch_check.is_error | default(false)
 
     - name: Add new file to the branch
       ansible.mcp.run_tool:
@@ -45,6 +65,17 @@
           repo: "{{ github_repository_name }}"
           path: "{{ file_path }}"
 
+    - name: Check for existing pull request
+      ansible.mcp.run_tool:
+        name: list_pull_requests
+        args:
+          owner: "{{ github_organization | default(github_owner) }}"
+          repo: "{{ github_repository_name }}"
+          state: open
+          head: "{{ github_organization | default(github_owner) }}:{{ github_branch_name }}"
+          base: main
+      register: pr_check
+
     - name: Create pull request
       ansible.mcp.run_tool:
         name: create_pull_request
@@ -55,3 +86,6 @@
           head: "{{ github_branch_name }}"
           title: "{{ pull_request_title }}"
           body: "{{ pull_request_body }}"
+      vars:
+        existing_prs: "{{ pr_check.content.0.text | from_json }}"
+      when: existing_prs | length == 0
