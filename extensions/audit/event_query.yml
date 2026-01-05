@@ -3,9 +3,7 @@ ansible.mcp.run_tool:
   query: >-
     .content[] | .text | fromjson | select(.id != null) | {
       name: (.id | tostring),
-      canonical_facts: {
-        id: (.id | tostring)
-      },
+      canonical_facts: { id: (.id | tostring) },
       facts: {
         infra_type: "PrivateCloud",
         infra_bucket: "AI_MCP",
