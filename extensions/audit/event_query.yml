@@ -1,9 +1,11 @@
 ---
-# Generated query for ansible.mcp collection
-# Uses (fromjson)? for error-safe JSON parsing of MCP responses
-# Some responses are error messages (not JSON), this silently skips them
+# ansible.mcp collection - Indirect Node Counting Queries
+# Fixed version with correct field mappings for each module
 
 ansible.mcp.run_tool:
+  # Executes MCP server tools (GitHub, AWS, etc.)
+  # Returns JSON inside .content[].text - needs fromjson parsing
+  # Counts: Resources with 'id' field (users, repos, PRs, etc.)
   query: >-
     .content[] | .text | (fromjson)? | select(.id != null) | {
       name: (.id | tostring),
@@ -18,29 +20,35 @@ ansible.mcp.run_tool:
     }
 
 ansible.mcp.server_info:
+  # Gets MCP server information
+  # Returns: .server_info.serverInfo.name (not .id!)
+  # Counts: MCP servers by name
   query: >-
-    .server_info | select(. != null) | {
-      name: .id,
+    .server_info | select(.serverInfo.name != null) | {
+      name: .serverInfo.name,
       canonical_facts: {
-        id: .id
+        id: .serverInfo.name
       },
       facts: {
         infra_type: "PrivateCloud",
         infra_bucket: "AI_MCP",
-        device_type: "Resource"
+        device_type: "MCP_Server"
       }
     }
 
 ansible.mcp.tools_info:
+  # Lists available tools on an MCP server
+  # Returns: .tools[].name (not .id!)
+  # Counts: Individual MCP tools
   query: >-
-    .tools[] | {
-      name: .id,
+    .tools[] | select(.name != null) | {
+      name: .name,
       canonical_facts: {
-        id: .id
+        id: .name
       },
       facts: {
         infra_type: "PrivateCloud",
         infra_bucket: "AI_MCP",
-        device_type: "Resource"
+        device_type: "MCP_Tool"
       }
     }
