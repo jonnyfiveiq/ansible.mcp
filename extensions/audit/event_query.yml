@@ -1,1 +1,43 @@
+---
+ansible.mcp.run_tool:
+  query: >-
+    .content[] | {
+      name: .id,
+      canonical_facts: {
+        id: .id
+      },
+      facts: {
+        infra_type: "PrivateCloud",
+        infra_bucket: "AI_MCP",
+        device_type: "Resource"
+      }
+    }
+
+ansible.mcp.server_info:
+  query: >-
+    .server_info | select(. != null) | {
+      name: .id,
+      canonical_facts: {
+        id: .id
+      },
+      facts: {
+        infra_type: "PrivateCloud",
+        infra_bucket: "AI_MCP",
+        device_type: "Resource"
+      }
+    }
+
+ansible.mcp.tools_info:
+  query: >-
+    .tools[] | {
+      name: .id,
+      canonical_facts: {
+        id: .id
+      },
+      facts: {
+        infra_type: "PrivateCloud",
+        infra_bucket: "AI_MCP",
+        device_type: "Resource"
+      }
+    }
 
