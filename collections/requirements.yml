@@ -1,0 +1,4 @@
+collections:
+  - name: https://github.com/jonnyfiveiq/ansible.mcp.git
+    type: git
+    version: main
