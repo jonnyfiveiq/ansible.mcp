@@ -68,7 +68,7 @@ content:
     elements: dict
     sample:
         - type: text
-          text: '{"id": 12345, "name": "example-repo", "full_name": "owner/example-repo", "html_url": "https://github.com/owner/example-repo"}'
+          text: Current weather in Durham is 72°F and partly cloudy.
 is_error:
     description: Whether the tool call resulted in an error.
     type: bool
@@ -77,20 +77,4 @@ structured_content:
     description: Optional structured result of the tool call.
     returned: when provided by the MCP server
     type: dict
-mcp_server:
-    description:
-        - Name of the MCP server that handled the request.
-        - This is the inventory hostname used to connect to the MCP server.
-        - Useful for tracking which MCP servers are being used across your automation.
-    returned: always
-    type: str
-    sample: "github"
-tool_name:
-    description:
-        - Name of the MCP tool that was called.
-        - Corresponds to the 'name' parameter passed to the module.
-        - Useful for auditing and tracking tool usage patterns.
-    returned: always
-    type: str
-    sample: "get_user"
 """

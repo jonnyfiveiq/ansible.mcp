@@ -32,8 +32,6 @@ class ActionModule(ActionBase):
                 - content: Tool response content
                 - is_error: Whether an error occurred (if applicable)
                 - structured_content: Structured response data (if applicable)
-                - mcp_server: Name of the MCP server (inventory host)
-                - tool_name: Name of the tool that was called
         """
         if task_vars is None:
             task_vars = {}
@@ -60,18 +58,12 @@ class ActionModule(ActionBase):
         tool_name: str = param_validation.tool_name  # type: ignore[assignment]
         tool_args: Dict[str, Any] = param_validation.tool_args  # type: ignore[assignment]
 
-        # Get MCP server name from inventory host
-        mcp_server = task_vars.get("inventory_hostname", "unknown")
-
         try:
             response = self._execute_tool(tool_name, tool_args)
-            self._populate_result(action_result, response, tool_name, mcp_server)
+            self._populate_result(action_result, response, tool_name)
         except Exception as e:
             action_result.failed = True
             action_result.msg = str(e)
-            # Still populate metadata even on failure
-            action_result.mcp_server = mcp_server
-            action_result.tool_name = tool_name
 
         result.update(action_result.to_dict())
         return result
@@ -115,25 +107,20 @@ class ActionModule(ActionBase):
         return conn.call_tool(tool_name, args=tool_args)
 
     def _populate_result(
-        self, action_result: ActionResult, response: Dict[str, Any], tool_name: str, mcp_server: str
+        self, action_result: ActionResult, response: Dict[str, Any], tool_name: str
     ) -> None:
         """Populate ActionResult from MCP response.
 
         Args:
             action_result: ActionResult object to populate with response data.
             response: Dictionary containing the MCP server response.
-            tool_name: Name of the tool that was executed.
-            mcp_server: Name of the MCP server (inventory host).
+            tool_name: Name of the tool that was executed (used for error messages).
         """
         content = response.get("content", [])
         is_error = response.get("isError", False)
 
         action_result.changed = False
         action_result.content = content
-        
-        # NEW: Always include call metadata for indirect node counting
-        action_result.mcp_server = mcp_server
-        action_result.tool_name = tool_name
 
         if "structured_content" in response:
             action_result.structured_content = response["structured_content"]

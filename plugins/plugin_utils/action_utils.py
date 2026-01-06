@@ -38,6 +38,8 @@ class ActionResult:
         content: Optional content returned by the action.
         is_error: Optional flag indicating if an error occurred.
         structured_content: Optional structured content from the response.
+        mcp_server: Name of the MCP server (inventory host) that handled the request.
+        tool_name: Name of the MCP tool that was called.
     """
 
     failed: bool = False
@@ -46,6 +48,9 @@ class ActionResult:
     content: list = field(default_factory=list)
     is_error: Optional[bool] = None
     structured_content: Optional[Any] = None
+    # NEW: Call metadata for indirect node counting
+    mcp_server: Optional[str] = None
+    tool_name: Optional[str] = None
 
     def to_dict(self):
         """Convert the result to a dictionary, excluding None values."""
