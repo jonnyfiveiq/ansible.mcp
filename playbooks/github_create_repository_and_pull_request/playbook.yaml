@@ -6,7 +6,7 @@
     #
     # Get the GitHub owner (user account) if no organization is specified
     #
-    - name: Retrieve user personal account
+    - name: Retrieve user personal account2
       when: github_organization is undefined
       block:
         - name: Get Github user details
@@ -23,7 +23,7 @@
     #
     # Create repository - ignore "already exists" errors for idempotency
     #
-    - name: Create Github repository
+    - name: Create Github repository2
       ansible.mcp.run_tool:
         name: create_repository
         args:
