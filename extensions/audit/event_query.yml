@@ -3,10 +3,12 @@
 
 ansible.mcp.run_tool:
   query: >-
-    . as $root | .content[] | .text | (fromjson)? | select(.id != null) | {
-      name: (.id | tostring),
+    . as $root | 
+    ((.content[0].text | (fromjson)?.id) // .tool_name) as $resource_id |
+    select($resource_id != null) | {
+      name: ($resource_id | tostring),
       canonical_facts: {
-        id: (.id | tostring)
+        id: ($resource_id | tostring)
       },
       facts: {
         infra_type: "PrivateCloud2",
@@ -44,3 +46,4 @@ ansible.mcp.tools_info:
         device_type: "MCP_Tool"
       }
     }
+
