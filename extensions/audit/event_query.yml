@@ -1,14 +1,12 @@
 ---
-# ansible.mcp collection - Indirect Node Counting Queries
-
 ansible.mcp.run_tool:
   query: >-
-    . as $root | ((.content[0].text | (fromjson)?.id) // .tool_name) as $resource_id | select($resource_id != null) | {name: ($resource_id | tostring), canonical_facts: {id: ($resource_id | tostring)}, facts: {infra_type: "PrivateCloud2", infra_bucket: "AI_MCP2", device_type: "Resource", mcp_server: $root.mcp_server, tool_name: $root.tool_name}}
+    . | select(.tool_name != null and .mcp_server != null) | {name: (.mcp_server + ":" + .tool_name), canonical_facts: {id: (.mcp_server + ":" + .tool_name)}, facts: {infra_type: "PrivateCloud", infra_bucket: "AI_MCP2", device_type: "Resource", mcp_server: .mcp_server, tool_name: .tool_name}}
 
 ansible.mcp.server_info:
   query: >-
-    .server_info | select(.serverInfo.name != null) | {name: .serverInfo.name, canonical_facts: {id: .serverInfo.name}, facts: {infra_type: "PrivateCloud2", infra_bucket: "AI_MCP2", device_type: "MCP_Server"}}
+    .server_info | select(.serverInfo.name != null) | {name: .serverInfo.name, canonical_facts: {id: .serverInfo.name}, facts: {infra_type: "PrivateCloud", infra_bucket: "AI_MCP2", device_type: "MCP_Server"}}
 
 ansible.mcp.tools_info:
   query: >-
-    .tools[] | select(.name != null) | {name: .name, canonical_facts: {id: .name}, facts: {infra_type: "PrivateCloud2", infra_bucket: "AI_MCP2", device_type: "MCP_Tool"}}
+    .tools[] | select(.name != null) | {name: .name, canonical_facts: {id: .name}, facts: {infra_type: "PrivateCloud", infra_bucket: "AI_MCP2", device_type: "MCP_Tool"}}
