@@ -14,7 +14,7 @@ ansible.mcp.run_tool:
       },
       facts: {
         infra_type: "PrivateCloud",
-        infra_bucket: "AI_MCP",
+        infra_bucket: "AI_MCP2",
         device_type: "Resource"
       }
     }
@@ -31,7 +31,7 @@ ansible.mcp.server_info:
       },
       facts: {
         infra_type: "PrivateCloud",
-        infra_bucket: "AI_MCP",
+        infra_bucket: "AI_MCP2",
         device_type: "MCP_Server"
       }
     }
@@ -48,7 +48,7 @@ ansible.mcp.tools_info:
       },
       facts: {
         infra_type: "PrivateCloud",
-        infra_bucket: "AI_MCP",
+        infra_bucket: "AI_MCP2",
         device_type: "MCP_Tool"
       }
     }
