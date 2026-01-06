@@ -1,13 +1,9 @@
 ---
 # ansible.mcp collection - Indirect Node Counting Queries
-# Fixed version with correct field mappings for each module
 
 ansible.mcp.run_tool:
-  # Executes MCP server tools (GitHub, AWS, etc.)
-  # Returns JSON inside .content[].text - needs fromjson parsing
-  # Counts: Resources with 'id' field (users, repos, PRs, etc.)
   query: >-
-    .content[] | .text | (fromjson)? | select(.id != null) | {
+    . as $root | .content[] | .text | (fromjson)? | select(.id != null) | {
       name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
@@ -15,14 +11,13 @@ ansible.mcp.run_tool:
       facts: {
         infra_type: "PrivateCloud2",
         infra_bucket: "AI_MCP2",
-        device_type: "Resource"
+        device_type: "Resource",
+        mcp_server: $root.mcp_server,
+        tool_name: $root.tool_name
       }
     }
 
 ansible.mcp.server_info:
-  # Gets MCP server information
-  # Returns: .server_info.serverInfo.name (not .id!)
-  # Counts: MCP servers by name
   query: >-
     .server_info | select(.serverInfo.name != null) | {
       name: .serverInfo.name,
@@ -37,9 +32,6 @@ ansible.mcp.server_info:
     }
 
 ansible.mcp.tools_info:
-  # Lists available tools on an MCP server
-  # Returns: .tools[].name (not .id!)
-  # Counts: Individual MCP tools
   query: >-
     .tools[] | select(.name != null) | {
       name: .name,
